@@ -78,7 +78,7 @@ diploma_data <- diploma_data %>%
 
 #C) Rural (not time-varying variable ! based on 2022 data)
 
-size_data <- citysize_data %>%
+citysize_data <- citysize_data %>%
   select(codecommune, nomcommune, codeagglo) %>%
   mutate(
     Rural = case_when(
@@ -143,3 +143,11 @@ income_data <- income_data %>%
     RatioRev = RatioRev * 100 
   ) %>%
   arrange(codecommune, Year)
+
+#III) Parquet exportation 
+
+write_parquet(age_data, "age_data.parquet")
+write_parquet(citysize_data, "citysize_data.parquet")
+write_parquet(csp_data, "csp_data.parquet")
+write_parquet(diploma_data, "diploma_data.parquet")
+write_parquet(income_data, "income_data.parquet")
