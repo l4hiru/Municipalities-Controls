@@ -21,6 +21,7 @@ diploma_data <- read_dta("Diploma Data/diplomescommunes.dta")
 citysize_data <- read_dta("City Size/popcommunes.dta")
 csp_data <- read_dta("CSP Data/cspcommunes.dta")
 income_data <- read_dta("Income Data/revcommunes.dta")
+pop_data <- read_dta("Pop Data/popcommuneselecteurs.dta")
 
 
 #II) Variables 
@@ -144,6 +145,21 @@ income_data <- income_data %>%
   ) %>%
   arrange(codecommune, Year)
 
+# F) Population 
+
+pop_data <- pop_data %>%      
+ dplyr::select(
+   codecommune, nomcommune, voters1973 = electeurs1973, voters1985 = electeurs1985      
+ ) %>%
+ mutate(
+   log_voters1973 = log(voters1973),
+   log_voters1985 = log(voters1985)
+ )
+
+summary(pop_data$voters1973)
+summary(pop_data$voters1985)
+
+
 #III) Parquet exportation 
 
 write_parquet(age_data, "age_data.parquet")
@@ -151,3 +167,4 @@ write_parquet(citysize_data, "citysize_data.parquet")
 write_parquet(csp_data, "csp_data.parquet")
 write_parquet(diploma_data, "diploma_data.parquet")
 write_parquet(income_data, "income_data.parquet")
+write_parquet(pop_data, "pop_data.parquet")
