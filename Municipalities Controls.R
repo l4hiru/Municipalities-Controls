@@ -22,6 +22,7 @@ citysize_data <- read_dta("City Size/popcommunes.dta")
 csp_data <- read_dta("CSP Data/cspcommunes.dta")
 income_data <- read_dta("Income Data/revcommunes.dta")
 pop_data <- read_dta("Pop Data/popcommuneselecteurs.dta")
+immi_data <- read_dta("Immi Data/natidepartements.dta")
 
 
 #II) Variables 
@@ -149,16 +150,28 @@ income_data <- income_data %>%
 
 pop_data <- pop_data %>%      
  dplyr::select(
-   codecommune, nomcommune, voters1973 = electeurs1973, voters1985 = electeurs1985      
+   dep, codecommune, nomcommune, 
+   voters1973 = electeurs1973, 
+   voters1975 = electeurs1975,
+   voters1985 = electeurs1985      
  ) %>%
  mutate(
    log_voters1973 = log(voters1973),
+   log_voters1975 = log(voters1975),
    log_voters1985 = log(voters1985)
  )
 
 summary(pop_data$voters1973)
 summary(pop_data$voters1985)
 
+#G) Immigration 
+
+years <- 1980:2022
+petranger_vars <- paste0("petranger", years)
+
+immi_data <- immi_data %>%
+  dplyr::select(dep, nomdep, any_of(petranger_vars)) %>%
+  dplyr::mutate(across(all_of(petranger_vars), ~ .x * 100))
 
 #III) Parquet exportation 
 
@@ -168,3 +181,4 @@ write_parquet(csp_data, "csp_data.parquet")
 write_parquet(diploma_data, "diploma_data.parquet")
 write_parquet(income_data, "income_data.parquet")
 write_parquet(pop_data, "pop_data.parquet")
+write_parquet(immi_data, "immi_data.parquet")
