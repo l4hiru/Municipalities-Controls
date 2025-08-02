@@ -57,10 +57,31 @@ age_data <- age_data %>%
   ) %>%
   arrange(codecommune, Year)
 
+#B) Sex
+
+sexe_data <- age_data %>%
+  dplyr::select(
+    codecommune, nomcommune,
+    propf1973,
+    propf1980, 
+    propf1987
+  ) %>%
+  pivot_longer(
+    cols = starts_with("propf"),
+    names_to = "Year",
+    names_pattern = "propf(\\d{4})",
+    values_to = "female_share"
+  ) %>%
+  mutate(
+    Year = factor(Year, levels = c("1973", "1980", "1987")),
+    female_share = female_share * 100  # convertir en pourcentage si nécessaire
+  ) %>%
+  arrange(codecommune, Year)
+
 #B) Diploma 
 
 diploma_data <- diploma_data %>%
-  select(
+  dplyr::select(
     codecommune, nomcommune,
     pbac1973,
     pbac1980, 
@@ -176,6 +197,7 @@ immi_data <- immi_data %>%
 #III) Parquet exportation 
 
 write_parquet(age_data, "age_data.parquet")
+write_parquet(sexe_data, "sex_data.parquet")
 write_parquet(citysize_data, "citysize_data.parquet")
 write_parquet(csp_data, "csp_data.parquet")
 write_parquet(diploma_data, "diploma_data.parquet")
