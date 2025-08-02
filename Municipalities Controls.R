@@ -59,7 +59,7 @@ age_data <- age_data %>%
 
 #B) Sex
 
-sexe_data <- age_data %>%
+sex_data <- age_data %>%
   dplyr::select(
     codecommune, nomcommune,
     propf1973,
