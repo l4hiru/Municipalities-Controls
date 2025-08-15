@@ -107,3 +107,5 @@ panel_data <- panel_data %>%
   # Réorganiser les lignes
   arrange(code_commune, Year) %>%
   ungroup()
+
+write_parquet(panel_data, "ShareElec Data/elec_share.parquet")
