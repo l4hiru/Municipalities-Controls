@@ -91,13 +91,19 @@ panel_data <- bind_rows(share_75_harmo, share_82_harmo, share_90_harmo)
 #B) Linear interpolation
 
 colnames(panel_data)
+str(panel_data)
 
-panel_data %>%
-  group_by(code_commune) %>%
-  mutate(share_elec = ifelse(
-    Year == 1988,
-    share_elec[Year == 1982] + ((1988 - 1982) / (1990 - 1982)) *
-      (share_elec[Year == 1990] - share_elec[Year == 1982]),
-    share_elec
-  )) %>%
+panel_data <- panel_data %>%
+  # Créer un dataframe complet avec toutes les années pour chaque commune
+  complete(nesting(code_commune, nom_commune), Year = c(1975, 1982, 1988, 1990)) %>%
+  # Grouper par commune pour les calculs d'interpolation
+  group_by(code_commune, nom_commune) %>%
+  # Interpolation linéaire pour share_elec (retourne NA si impossible)
+  mutate(share_elec = ifelse(Year == 1988 & is.na(share_elec),
+                           tryCatch({
+                             approx(Year, share_elec, xout = 1988, rule = 1)$y
+                           }, error = function(e) NA),
+                           share_elec)) %>%
+  # Réorganiser les lignes
+  arrange(code_commune, Year) %>%
   ungroup()
