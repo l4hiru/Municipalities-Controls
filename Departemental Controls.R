@@ -25,6 +25,7 @@ pop_data <- read_dta("Pop Data/popcommuneselecteurs.dta")
 immi_data <- read_dta("Immi Data/natidepartements.dta")
 
 dep_pop_data <- read_dta("Pop Data/popdepartements.dta")
+dep_female_data <- read_dta("Age Data/agesexdepartements.dta")
 
 #II) Variables 
 
@@ -201,6 +202,26 @@ dep_pop_long <- dep_pop_data %>%
     Year = factor(Year)                       # transformer en facteur
   )
 
+# I) Departemental female share 
+
+years <- 1978:2022
+propf_vars <- paste0("propf", years)
+
+dep_female_data <- dep_female_data %>%
+  dplyr::select(dep, nomdep, any_of(propf_vars)) 
+
+dep_female_data <- dep_female_data %>%
+  pivot_longer(
+    cols = starts_with("propf"),         # toutes les colonnes de type popXXXX
+    names_to = "Year",                 # nouvelle colonne "Year"
+    values_to = "FemaleShare"           # nouvelle colonne "Population"
+  ) %>%
+  mutate(
+    Year = as.integer(gsub("propf", "", Year)), # enlever "pop" et convertir en numérique
+    Year = factor(Year),
+    FemaleShare = FemaleShare * 100                   
+  )
+
 #III) Parquet exportation 
 
 write_parquet(age_data, "age_data_dep.parquet")
@@ -210,3 +231,4 @@ write_parquet(income_data, "income_data_dep.parquet")
 write_parquet(immi_data, "immi_data_dep.parquet")
 
 write_parquet(dep_pop_long, "dep_pop_data.parquet")
+write_parquet(dep_female_data, "dep_female_data.parquet")
