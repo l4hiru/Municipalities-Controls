@@ -24,6 +24,7 @@ income_data <- read_dta("Income Data/revdepartements.dta")
 pop_data <- read_dta("Pop Data/popcommuneselecteurs.dta")
 immi_data <- read_dta("Immi Data/natidepartements.dta")
 
+dep_pop_data <- read_dta("Pop Data/popdepartements.dta")
 
 #II) Variables 
 
@@ -181,6 +182,25 @@ immi_data <- immi_data %>%
   dplyr::select(dep, nomdep, any_of(petranger_vars)) %>%
   dplyr::mutate(across(all_of(petranger_vars), ~ .x * 100))
 
+# H) Departemental pop
+
+years <- 1978:2022
+pop_vars <- paste0("pop", years)
+
+dep_pop_data <- dep_pop_data %>%
+  dplyr::select(dep, nomdep, any_of(pop_vars)) 
+
+dep_pop_long <- dep_pop_data %>%
+  pivot_longer(
+    cols = starts_with("pop"),         # toutes les colonnes de type popXXXX
+    names_to = "Year",                 # nouvelle colonne "Year"
+    values_to = "Population"           # nouvelle colonne "Population"
+  ) %>%
+  mutate(
+    Year = as.integer(gsub("pop", "", Year)), # enlever "pop" et convertir en numérique
+    Year = factor(Year)                       # transformer en facteur
+  )
+
 #III) Parquet exportation 
 
 write_parquet(age_data, "age_data_dep.parquet")
@@ -188,3 +208,5 @@ write_parquet(csp_data_dep, "csp_data_dep.parquet")
 write_parquet(diploma_data, "diploma_data_dep.parquet")
 write_parquet(income_data, "income_data_dep.parquet")
 write_parquet(immi_data, "immi_data_dep.parquet")
+
+write_parquet(dep_pop_long, "dep_pop_data.parquet")
